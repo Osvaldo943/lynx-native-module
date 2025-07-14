@@ -1,0 +1,51 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../testing/test.gni")
+import("../../../Lynx.gni")
+
+# ui_wrapper_painting_shared_sources
+ui_wrapper_painting_shared_sources = [
+  "catalyzer.cc",
+  "catalyzer.h",
+  "painting_context.cc",
+  "painting_context.h",
+]
+
+if (!enable_unittests) {
+  if (is_android) {
+    ui_wrapper_painting_shared_sources += [
+      "android/painting_context_android.cc",
+      "android/painting_context_android.h",
+      "android/ui_delegate_android.cc",
+      "android/ui_delegate_android.h",
+    ]
+  } else if (is_harmony) {
+    ui_wrapper_painting_shared_sources += [
+      "harmony/painting_context_harmony.cc",
+      "harmony/painting_context_harmony.h",
+      "harmony/ui_delegate_harmony.cc",
+      "harmony/ui_delegate_harmony.h",
+    ]
+  } else if (is_ios) {
+    ui_wrapper_painting_shared_sources += [
+      "ios/painting_context_darwin.h",
+      "ios/painting_context_darwin.mm",
+      "ios/ui_delegate_darwin.h",
+      "ios/ui_delegate_darwin.mm",
+    ]
+  }
+}
+
+lynx_core_source_set("painting") {
+  sources = ui_wrapper_painting_shared_sources
+
+  deps = [
+    "../../../public",
+    "../../../value_wrapper:value_wrapper",
+    "../../starlight:starlight",
+    "../../trace:renderer_trace",
+    "../common",
+  ]
+}

@@ -1,0 +1,8 @@
+{
+    global:
+        JNI_OnLoad;
+        _ZN4lynx4base7logging*;
+        _ZN4lynx4base7android*;
+    local:
+        *;
+};

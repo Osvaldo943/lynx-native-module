@@ -1,0 +1,112 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../testing/test.gni")
+import("../Lynx.gni")
+import("build.gni")
+
+group("tasm_group") {
+  deps = [
+    ":tasm",
+    "../services/event_report:event_report",
+    "../services/long_task_timing:long_task_timing",
+    "../services/performance:performance",
+    "../services/ssr",
+    "../shell:shell",
+    "dom:dom",
+    "dom/selector:element_selector",
+  ]
+}
+
+lepus_compile = is_android && build_lepus_compile
+
+lynx_core_source_set("tasm") {
+  include_dirs = [ "../../third_party" ]
+
+  # TODO(zhengsenyao): break tasm to into three targets: tasm, tasm_config & vdom_radon
+  allow_circular_includes_from = [ "dom:dom_headers" ]
+
+  sources = lynx_tasm_shared_sources_path
+  if (!is_oliver_ssr) {
+    sources += lynx_recorder_sources_path
+  }
+
+  deps = [ "dom:dom_headers" ]
+  public_deps = [
+    "../animation",
+    "../animation/utils:animation_utils",
+    "../base",
+    "../runtime/bindings/lepus",
+    "../runtime/vm/lepus",
+    "../services/event_report",
+    "../services/long_task_timing",
+    "../services/performance",
+    "../template_bundle:template_bundle",
+    "css",
+    "data",
+    "dom/vdom/radon",
+    "events",
+    "pipeline",
+    "signal:signal",
+    "starlight",
+    "trace:renderer_trace",
+    "utils:renderer_utils",
+  ]
+
+  if (!is_oliver_ssr) {
+    public_deps += [
+      "../animation/basic_animation:basic_animation",
+      "../animation/lynx_basic_animator:lynx_basic_animator",
+      "../animation/transforms",
+      "../resource",
+      "../runtime",
+      "../shared_data",
+      "../shell",
+    ]
+  }
+
+  if (enable_unittests) {
+    sources += [
+      "tasm/testing/event_tracker_mock.cc",
+      "tasm/testing/event_tracker_mock.h",
+    ]
+    configs = [
+      "//build/config/compiler:cxx_version_17",
+      "../runtime/bindings/napi:napi_config",
+    ]
+    deps += [
+      "../../third_party/quickjs",
+      "../../third_party/rapidjson:rapidjson",
+      "../base",
+      "../runtime/bindings/napi:napi_binding_quickjs",
+      "../runtime/bindings/napi/test:test_module",
+    ]
+    deps += [
+      "../../third_party/napi:env",
+      "../../third_party/napi:quickjs",
+      "../../third_party/quickjs:quickjs_libc",
+    ]
+    if (is_mac) {
+      # On MacOS, NapiBindingCore source files create JSC runtime by default.
+      # And consequently all unittests should link with JSC framework and
+      # depends on NapiBindingJSC.
+      deps += [ "../runtime/bindings/napi:napi_binding_jsc" ]
+    }
+  }
+
+  if (lepus_compile) {
+    public_deps += [ "../template_bundle/template_codec:lepus_compile" ]
+  }
+}
+
+unittest_exec("page_config_unittests_exec") {
+  testonly = true
+
+  sources = [ "page_config_unittests.cc" ]
+
+  deps = [
+    ":tasm",
+    "dom:dom",
+  ]
+}

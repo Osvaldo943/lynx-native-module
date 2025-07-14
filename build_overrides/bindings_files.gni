@@ -1,0 +1,25 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+interceptor_shared_sources =
+    rebase_path(
+        [
+          "../core/runtime/bindings/jsi/interceptor/interceptor_factory.cc",
+          "../core/runtime/bindings/jsi/interceptor/interceptor_factory.h",
+        ])
+network_interceptor_shared_sources = []
+
+bindings_extend_sources =
+    rebase_path([
+                  "../core/runtime/bindings/jsi/system_info.cc",
+                  "../core/runtime/bindings/jsi/system_info.h",
+                ])
+
+jsbridge_extend_shared_sources = rebase_path(
+        [ "../core/runtime/bindings/jsi/modules/ios/lynx_module_interceptor.mm" ])
+
+trace_extend_sources = rebase_path([
+                                     "../core/base/lynx_trace_categories.h",
+                                     "../core/base/trace/trace_event_def.h",
+                                   ])

@@ -1,0 +1,33 @@
+{
+  "name": "animation-fill-mode",
+  "id": 71,
+  "type": "complex",
+  "default_value": "none",
+  "version": "1.0",
+  "desc": "",
+  "author": "liyanbo, linxiaosong",
+  "consumption_status": "skip",
+  "values": [
+    {
+      "value": "none",
+      "version": "1.0",
+      "desc": ""
+    },
+    {
+      "value": "forwards",
+      "version": "1.0",
+      "desc": ""
+    },
+    {
+      "value": "backwards",
+      "version": "1.0",
+      "desc": ""
+    },
+    {
+      "value": "both",
+      "version": "1.0",
+      "desc": ""
+    }
+  ],
+  "is_shorthand": false
+}

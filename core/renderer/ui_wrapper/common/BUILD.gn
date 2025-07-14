@@ -1,0 +1,52 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../testing/test.gni")
+import("../../../Lynx.gni")
+
+# ui_wrapper_common_shared_sources
+ui_wrapper_common_shared_sources = [ "prop_bundle_creator_default.h" ]
+
+if (!enable_unittests) {
+  ui_wrapper_common_shared_sources += [ "prop_bundle_creator_default.cc" ]
+  if (is_android) {
+    ui_wrapper_common_shared_sources += [
+      "android/platform_extra_bundle_android.cc",
+      "android/platform_extra_bundle_android.h",
+      "android/prop_bundle_android.cc",
+      "android/prop_bundle_android.h",
+    ]
+  } else if (is_harmony) {
+    ui_wrapper_common_shared_sources += [
+      "harmony/platform_extra_bundle_harmony.cc",
+      "harmony/platform_extra_bundle_harmony.h",
+      "harmony/prop_bundle_harmony.cc",
+      "harmony/prop_bundle_harmony.h",
+    ]
+  } else if (is_ios) {
+    ui_wrapper_common_shared_sources += [
+      "ios/platform_extra_bundle_darwin.h",
+      "ios/platform_extra_bundle_darwin.mm",
+      "ios/prop_bundle_darwin.h",
+      "ios/prop_bundle_darwin.mm",
+    ]
+  }
+}
+
+if (enable_unittests) {
+  ui_wrapper_common_shared_sources += [
+    "testing/prop_bundle_mock.cc",
+    "testing/prop_bundle_mock.h",
+  ]
+}
+
+lynx_core_source_set("common") {
+  sources = ui_wrapper_common_shared_sources
+
+  deps = [
+    "../../../public",
+    "../../../value_wrapper:value_wrapper",
+    "../../starlight:starlight",
+  ]
+}

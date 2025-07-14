@@ -1,0 +1,104 @@
+# {{ api.name }}
+
+{{ api.brief_desc }}
+
+## Syntax
+{% if api.android_member %}
+
+### Android
+{% if api.harmony_member.since %}
+> Added in version {{ api.android_member.since }}.
+{% endif %}
+
+```java
+{{ api.android_member.prototype }}
+```
+{% if api.android_member.params %}
+
+#### Parameters
+
+{%  for param in api.android_member.params %}
+- `{{ param.name }}`: {{ param.brief_desc }}
+{% endfor %}
+{% endif %}
+{% if api.android_member.returns.brief_desc %}
+
+#### Return
+
+- {{ api.android_member.returns.brief_desc }}
+{% endif %}
+{% if api.android_member.note %}
+
+:::note
+
+{% for note in api.android_member.note %}
+- {{ note }}
+{% endfor %}
+
+:::
+{% endif %}
+{% endif %}
+{% if api.ios_member %}
+
+### iOS
+{% if api.harmony_member.since %}
+> Added in version {{ api.ios_member.since }}.
+{% endif %}
+
+```objc
+{{ api.ios_member.prototype }}
+```
+{% if api.ios_member.params %}
+
+#### Parameters
+
+{%  for param in api.ios_member.params %}
+- `{{ param.name }}`: {{ param.brief_desc }}
+{% endfor %}
+{% endif %}
+{% if api.ios_member.returns.brief_desc %}
+
+#### Return
+- {{ api.ios_member.returns.brief_desc }}
+{% endif %}
+{% if api.ios_member.note %}
+
+:::note
+
+{% for note in api.ios_member.note %}
+- {{ note }}
+{% endfor %}
+
+:::
+{% endif %}
+{% endif %}
+{% if api.harmony_member %}
+
+### Harmony
+{% if api.harmony_member.since %}
+> Added in version {{ api.harmony_member.since }}.
+{% endif %}
+
+```typescript
+{{ api.harmony_member.definition }}
+```
+{% if api.harmony_member.params %}
+
+#### Parameters
+
+{%  for param in api.harmony_member.params %}
+- `{{ param.name }}`: {{ param.brief_desc }}
+{% endfor %}
+{% endif %}
+{% if api.harmony_member.returns.brief_desc %}
+
+#### Return
+- {{ api.harmony_member.returns.brief_desc }}
+{% endif %}
+{% endif %}
+
+## Compatibility
+
+import { LegacyCompatTable } from '@lynx';
+
+<LegacyCompatTable metadata="lynx-native-api/{{ api.parent_name }}/{{ api.kebab_name }}" />

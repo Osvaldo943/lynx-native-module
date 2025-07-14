@@ -1,0 +1,102 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+#
+
+import("//${lynx_dir}/build_overrides/darwin.gni")
+import("../../../../config.gni")
+import("../../../../tools/gn_tools/podspec_target_template.gni")
+
+group("XElement") {
+  deps = [ ":XElement_podspec" ]
+}
+
+podspec_target("XElement_podspec") {
+  output_name = "XElement.podspec"
+  output_path = rebase_path("//")
+  root_specification = {
+    name = "XElement"
+    version = "$lynx_version"
+    summary = "The framework of XElement"
+    homepage = "https://github.com/lynx-family/lynx"
+    license = "Apache 2.0"
+    author = "Lynx"
+    source = {
+      git = "https://github.com/lynx-family/lynx.git"
+    }
+    compiler_flags = [ "-fno-rtti" ]
+    ios = {
+      deployment_target = "10.0"
+    }
+    pod_target_xcconfig = {
+      CLANG_CXX_LANGUAGE_STANDARD = "gnu++17"
+      OTHER_CPLUSPLUSFLAGS = "-fno-c++-static-destructors"
+      GCC_PREPROCESSOR_DEFINITIONS = []
+      if (!is_debug) {
+        GCC_PREPROCESSOR_DEFINITIONS += [ "NDEBUG=1" ]
+      }
+    }
+
+    default_subspecs = [
+      "Input",
+      "Behavior",
+    ]
+  }
+
+  deps = [
+    ":Behavior",
+    ":Input",
+  ]
+}
+
+subspec_target("Input") {
+  sources = [
+    "input/LynxUIBaseInput.h",
+    "input/LynxUIBaseInput.m",
+    "input/LynxUIBaseInputShadowNode.h",
+    "input/LynxUIBaseInputShadowNode.m",
+    "input/LynxUIInput.h",
+    "input/LynxUIInput.m",
+    "input/LynxUITextArea.h",
+    "input/LynxUITextArea.m",
+    "input/key_listener/LynxDialerKeyListener.h",
+    "input/key_listener/LynxDialerKeyListener.m",
+    "input/key_listener/LynxDigitKeyListener.h",
+    "input/key_listener/LynxDigitKeyListener.m",
+    "input/key_listener/LynxInputType.h",
+    "input/key_listener/LynxKeyListener.h",
+    "input/key_listener/LynxNumberKeyListener.h",
+    "input/key_listener/LynxNumberKeyListener.m",
+    "input/key_listener/LynxTextKeyListener.h",
+    "input/key_listener/LynxTextKeyListener.m",
+  ]
+  public_header_files = [
+    "input/key_listener/LynxDialerKeyListener.h",
+    "input/key_listener/LynxDigitKeyListener.h",
+    "input/key_listener/LynxKeyListener.h",
+    "input/key_listener/LynxNumberKeyListener.h",
+    "input/key_listener/LynxTextKeyListener.h",
+    "input/key_listener/LynxInputType.h",
+    "input/LynxUIBaseInput.h",
+    "input/LynxUIInput.h",
+    "input/LynxUITextArea.h",
+    "input/LynxUIBaseInputShadowNode.h",
+  ]
+  dependency = lynx_dependency
+}
+
+subspec_target("Behavior") {
+  sources = [
+    "behavior/LynxUIInputAutoRegistry.h",
+    "behavior/LynxUIInputAutoRegistry.m",
+    "behavior/LynxUITextAreaAutoRegistry.h",
+    "behavior/LynxUITextAreaAutoRegistry.m",
+  ]
+  public_header_files = [
+    "behavior/LynxUIInputAutoRegistry.h",
+    "behavior/LynxUITextAreaAutoRegistry.h",
+  ]
+
+  dependency = lynx_dependency
+  dependency += [ "XElement/Input" ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "arkts-doc-parser",
+  "version": "0.0.1",
+  "description": "ArkTs API parser",
+  "main": "dist/arkts-parser.js",
+  "scripts": {
+    "build": "esbuild cli.ts --bundle --platform=node --minify --outfile=dist/arkts-parser.js",
+    "build:debug": "esbuild cli.ts --bundle --platform=node --outfile=dist/arkts-parser.js"
+  },
+  "dependencies": {
+    "ts-morph": "^25.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.13.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.7.2"
+  }
+}

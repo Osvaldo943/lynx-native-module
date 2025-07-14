@@ -1,0 +1,52 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../testing/test.gni")
+import("../../../Lynx.gni")
+
+# ui_wrapper_layout_shared_sources
+ui_wrapper_layout_shared_sources = [
+  "layout_context.cc",
+  "layout_context.h",
+  "layout_context_data.h",
+  "layout_node.cc",
+  "layout_node.h",
+  "list_node.cc",
+  "list_node.h",
+  "no_needed_layout_list.h",
+]
+
+if (!enable_unittests) {
+  if (is_android) {
+    ui_wrapper_layout_shared_sources += [
+      "android/layout_context_android.cc",
+      "android/layout_context_android.h",
+      "android/layout_node_android.cc",
+      "android/layout_node_android.h",
+      "android/layout_node_manager_android.cc",
+      "android/layout_node_manager_android.h",
+    ]
+  } else if (is_harmony) {
+    ui_wrapper_layout_shared_sources += [
+      "harmony/layout_context_harmony.cc",
+      "harmony/layout_context_harmony.h",
+    ]
+  } else if (is_ios) {
+    ui_wrapper_layout_shared_sources += [
+      "ios/layout_context_darwin.h",
+      "ios/layout_context_darwin.mm",
+    ]
+  }
+}
+
+lynx_core_source_set("layout") {
+  sources = ui_wrapper_layout_shared_sources
+
+  deps = [
+    "../../../public",
+    "../../../value_wrapper:value_wrapper",
+    "../../starlight:starlight",
+    "../common:common",
+  ]
+}

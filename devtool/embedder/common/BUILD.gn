@@ -1,0 +1,16 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../core/Lynx.gni")
+import("../../lynx_devtool/devtool.gni")
+
+devtool_source_set("lynx_devtool_embedder_common") {
+  sources = [
+    "debugger_embedder.cc",
+    "debugger_embedder.h",
+    "devtools_embedder.cc",
+    "devtools_embedder.h",
+  ]
+  include_dirs = [ "../../../third_party/debug_router/src/" ]
+}

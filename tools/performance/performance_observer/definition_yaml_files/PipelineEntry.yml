@@ -1,0 +1,71 @@
+FrameworkRenderingTiming:
+  type: object
+  description: describe the framework performance timing provided by lynxsdk
+  x-ts-only: true
+  properties:
+    vmExecuteStart:
+      type: number
+      required: false
+    vmExecuteEnd:
+      type: number
+      required: false
+    dataProcessorStart:
+      type: number
+      required: false
+    dataProcessorEnd:
+      type: number
+      required: false
+    setInitDataStart:
+      type: number
+      required: false
+    setInitDataEnd:
+      type: number
+      required: false
+
+FrameworkRenderingTimings:
+  type: object
+  description: framework override this to provide timing typing
+  x-ts-only: true
+
+PipelineEntry:
+  x-type: pipeline
+  x-name:
+    - updateTriggeredByBts
+    - updateTriggeredByNative
+    - reactLynxHydrate
+    - setNativeProps
+    - updateGlobalProps
+  allOf:
+    - $ref: 'PerformanceEntry.yml#/PerformanceEntry'
+    - type: object
+      properties:
+        identifier:
+          type: string
+        pipelineStart:
+          type: number
+        pipelineEnd:
+          type: number
+        mtsRenderStart:
+          type: number
+        mtsRenderEnd:
+          type: number
+        resolveStart:
+          type: number
+        resolveEnd:
+          type: number
+        layoutStart:
+          type: number
+        layoutEnd:
+          type: number
+        paintingUiOperationExecuteStart:
+          type: number
+        paintingUiOperationExecuteEnd:
+          type: number
+        layoutUiOperationExecuteStart:
+          type: number
+        layoutUiOperationExecuteEnd:
+          type: number
+        paintEnd:
+          type: number
+        frameworkRenderingTiming:
+          $ref: '#/FrameworkRenderingTiming'

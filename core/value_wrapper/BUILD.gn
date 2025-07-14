@@ -1,0 +1,76 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../testing/test.gni")
+import("../Lynx.gni")
+
+# value_wrapper_shared_sources
+value_wrapper_shared_sources = [
+  "value_impl_lepus.cc",
+  "value_impl_lepus.h",
+  "value_impl_piper.h",
+  "value_wrapper_utils.cc",
+  "value_wrapper_utils.h",
+]
+if (enable_napi_binding) {
+  value_wrapper_shared_sources += [
+    "napi/napi_util_primjs.cc",
+    "napi/napi_util_primjs.h",
+    "napi/value_impl_napi_primjs.cc",
+    "napi/value_impl_napi_primjs.h",
+  ]
+}
+if (is_android) {
+  value_wrapper_shared_sources += [
+    "android/value_impl_android.cc",
+    "android/value_impl_android.h",
+  ]
+} else if (is_harmony) {
+  value_wrapper_shared_sources += [
+    "harmony/value_impl_napi.cc",
+    "harmony/value_impl_napi.h",
+  ]
+} else if (is_apple) {
+  value_wrapper_shared_sources += [
+    "darwin/value_impl_darwin.h",
+    "darwin/value_impl_darwin.mm",
+  ]
+}
+
+lynx_core_source_set("value_wrapper") {
+  sources = value_wrapper_shared_sources
+  deps = [ "../../base/src:base_log_headers" ]
+}
+
+lynx_core_source_set("value_impl_android_unittest") {
+  sources = [ "android/value_impl_android_unittest.cc" ]
+  deps = [ "//third_party/googletest:gtest_sources" ]
+}
+
+unittest_exec("value_wrapper_unittest_exec") {
+  sources = []
+  deps = [ ":value_wrapper_testset" ]
+}
+
+unittest_set("value_wrapper_testset") {
+  public_configs = [ "../:lynx_public_config" ]
+  sources = [
+    "napi/value_impl_napi_primjs_unittest.cc",
+    "value_impl_unittest.cc",
+  ]
+  deps = [
+    "../public",
+    "../renderer/dom:dom",
+  ]
+  deps += [
+    ":value_wrapper",
+    "../../third_party/quickjs",
+    "../base",
+    "../runtime/bindings/napi:napi_binding_quickjs",
+  ]
+  deps += [
+    "../../third_party/napi:env",
+    "../../third_party/napi:quickjs",
+  ]
+}

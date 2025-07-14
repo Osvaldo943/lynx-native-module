@@ -1,0 +1,40 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../core/Lynx.gni")
+import("../../lynx_devtool/devtool.gni")
+
+devtool_source_set("lynx_devtool_embedder_core") {
+  sources = [
+    "debug_bridge_embedder.cc",
+    "debug_bridge_embedder.h",
+    "debug_state_listener_embedder.cc",
+    "debug_state_listener_embedder.h",
+    "devtool_message_handler_embedder.cc",
+    "devtool_message_handler_embedder.h",
+    "devtool_platform_embedder.cc",
+    "devtool_platform_embedder.h",
+    "devtoolng_delegate_embedder.cc",
+    "devtoolng_delegate_embedder.h",
+    "devtools_message_handler.h",
+    "env_embedder.h",
+    "frame_capturer_embedder.cc",
+    "frame_capturer_embedder.h",
+    "global_devtool_platform_embedder.cc",
+    "global_devtool_platform_embedder.h",
+    "inspector_owner_embedder.cc",
+    "inspector_owner_embedder.h",
+    "invoke_cdp_from_sdk_sender_embedder.h",
+    "page_reload_helper_embedder.cc",
+    "page_reload_helper_embedder.h",
+    "screen_cast_helper_embedder.cc",
+    "screen_cast_helper_embedder.h",
+    "screenshot_thread_manager.cc",
+    "screenshot_thread_manager.h",
+    "screenshot_timer_trigger_embedder.cc",
+    "screenshot_timer_trigger_embedder.h",
+  ]
+
+  include_dirs = [ "../../../third_party/debug_router/src/" ]
+}

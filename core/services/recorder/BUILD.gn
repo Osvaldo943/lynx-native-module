@@ -1,0 +1,77 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../testing/test.gni")
+import("../../Lynx.gni")
+
+# recorder_shared_sources
+recorder_shared_sources = [
+  "lynxview_init_recorder.cc",
+  "lynxview_init_recorder.h",
+  "native_module_recorder.cc",
+  "native_module_recorder.h",
+  "recorder_constants.h",
+  "template_assembler_recorder.cc",
+  "template_assembler_recorder.h",
+  "testbench_base_recorder.cc",
+  "testbench_base_recorder.h",
+]
+
+if (is_ios) {
+  recorder_shared_sources += [
+    "../../../platform/darwin/ios/lynx/recorder/LynxRecorder.h",
+    "../../../platform/darwin/ios/lynx/recorder/LynxRecorder.mm",
+    "ios/template_assembler_recorder_darwin.h",
+    "ios/template_assembler_recorder_darwin.mm",
+  ]
+}
+
+# recorder_shared_sources end
+
+lynx_core_source_set("recorder") {
+  sources = recorder_shared_sources
+
+  deps = [
+    "../../../base/src:base",
+    "../../../base/src:base_log_headers",
+    "../../../third_party/modp_b64:modp_b64",
+    "../../../third_party/rapidjson:rapidjson",
+    "../../base:base",
+    "../../renderer:tasm",
+    "../../renderer/data:data",
+    "../../renderer/dom:dom",
+    "../../renderer/dom:renderer_dom",
+    "../../runtime",
+    "../../runtime/bindings/lepus",
+    "../../runtime/vm/lepus",
+  ]
+  deps += [ "//third_party/zlib" ]
+}
+
+unittest_set("record_testset") {
+  configs = [ "../../:lynx_public_config" ]
+
+  sources = [
+    "template_assembler_recorder_unittest.cc",
+    "testbench_base_recorder_unittest.cc",
+  ]
+  deps = [
+    ":recorder",
+    "../../../third_party/rapidjson:rapidjson",
+  ]
+}
+
+unittest_exec("record_unittest_exec") {
+  sources = []
+  deps = [ ":record_testset" ]
+}
+
+group("record_unit_test") {
+  testonly = true
+
+  deps = [
+    ":record_testset",
+    ":record_unittest_exec",
+  ]
+}

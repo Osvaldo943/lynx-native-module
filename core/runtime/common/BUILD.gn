@@ -1,0 +1,53 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../testing/test.gni")
+import("../../Lynx.gni")
+
+lynx_core_source_set("utils") {
+  sources = [
+    "args_converter.h",
+    "jsi_object_wrapper.cc",
+    "jsi_object_wrapper.h",
+    "utils.cc",
+    "utils.h",
+  ]
+  if (is_android) {
+    sources += [ "android/utils_map.cc" ]
+  }
+  deps = [
+    "../../../base/src:base_log_headers",
+    "../../../third_party/rapidjson",
+  ]
+}
+
+lynx_core_source_set("reporter") {
+  sources = [
+    "js_error_reporter.cc",
+    "js_error_reporter.h",
+  ]
+  deps = [
+    "../../../base/src:base_log",
+    "../../../base/src:string_utils",
+    "../../../third_party/rapidjson",
+  ]
+}
+
+unittest_set("utils_unittests_testset") {
+  configs = [
+    "../../:lynx_public_config",
+    "../jsi:jsi_unittest_config",
+  ]
+
+  sources = [
+    "args_converter_unittest.cc",
+    "js_error_reporter_unittest.cc",
+    "utils_unittest.cc",
+  ]
+
+  deps = [
+    ":reporter",
+    ":utils",
+  ]
+}

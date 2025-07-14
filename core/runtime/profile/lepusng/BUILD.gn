@@ -1,0 +1,47 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../testing/test.gni")
+import("../../../Lynx.gni")
+
+lynx_core_source_set("lepusng_profile") {
+  sources = [
+    "lepusng_profiler.cc",
+    "lepusng_profiler.h",
+  ]
+
+  public_deps = [
+    "../:profile_public_header",
+    "../../vm/lepus:lepus",
+  ]
+}
+
+unittest_set("lepusng_profile_testset") {
+  sources = [ "lepusng_profiler_unittest.cc" ]
+  public_deps = [
+    ":lepusng_profile",
+    "../:profile",
+    "../../../../base/trace/native:trace",
+    "../../../../testing/utils:testing_utils",
+    "../../../renderer:tasm",
+    "../../../renderer/dom:dom",
+    "../../../renderer/dom:renderer_dom",
+    "../../bindings/lepus",
+    "../../vm/lepus:lepus",
+    "../../vm/lepus:lepus_ng",
+  ]
+}
+
+unittest_exec("lepusng_profile_unittests_exec") {
+  sources = []
+  deps = [ ":lepusng_profile_testset" ]
+}
+
+group("lepusng_profile_tests") {
+  testonly = true
+  deps = [
+    ":lepusng_profile_testset",
+    ":lepusng_profile_unittests_exec",
+  ]
+}

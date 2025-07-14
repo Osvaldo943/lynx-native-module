@@ -1,0 +1,17 @@
+jsc_sources = rebase_path([
+                            "jsc_api.h",
+                            "jsc_context_group_wrapper.cc",
+                            "jsc_context_group_wrapper.h",
+                            "jsc_context_wrapper.cc",
+                            "jsc_context_wrapper.h",
+                            "jsc_exception.cc",
+                            "jsc_exception.h",
+                            "jsc_helper.cc",
+                            "jsc_helper.h",
+                            "jsc_host_function.cc",
+                            "jsc_host_function.h",
+                            "jsc_host_object.cc",
+                            "jsc_host_object.h",
+                            "jsc_runtime.cc",
+                            "jsc_runtime.h",
+                          ])

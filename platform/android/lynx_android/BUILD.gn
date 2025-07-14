@@ -1,0 +1,291 @@
+# Copyright 2021 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("//${lynx_dir}/build_overrides/android.gni")
+import("../../../tools/gn_tools/cmake_target_template.gni")
+import("LynxAndroid.gni")
+
+assert(is_android)
+
+group("LynxAndroid") {
+  deps = []
+  deps += [ ":lynx_android" ]
+  if (!enable_lite) {
+    deps += [ "../../../core/runtime/jsi/v8:lynx_v8_bridge" ]
+  }
+}
+
+cmake_target("lynx_android") {
+  cmake_version = "3.4.1"
+  target_type = "shared_library"
+  output_name = "lynx"
+  deps = [
+    ":lynx_android_lib",
+    ":lynx_jni_files",
+    "../../../base/trace/android:LynxTrace",
+    "../../../core/build:build",
+    "../../../core/shell:shell",
+  ]
+  configs = [
+    ":lynx_android_public_config",
+    ":lynx_android_private_config",
+  ]
+  if (!enable_lite) {
+    sub_cmake_target = [ "../../../core/runtime/jsi/v8:lynx_v8_bridge" ]
+  }
+}
+
+group("lynx_android_lib") {
+  public_deps = [
+    "../../../base/src:base",
+    "../../../core/animation:animation",
+    "../../../core/animation/basic_animation:basic_animation",
+    "../../../core/animation/lynx_basic_animator:lynx_basic_animator",
+    "../../../core/animation/transforms:transforms",
+    "../../../core/animation/utils:animation_utils",
+    "../../../core/base:base",
+    "../../../core/build:build",
+    "../../../core/event",
+    "../../../core/renderer:tasm",
+    "../../../core/renderer/css:css",
+    "../../../core/renderer/data:data",
+    "../../../core/renderer/dom:dom",
+    "../../../core/renderer/dom:renderer_dom",
+    "../../../core/renderer/dom/selector:element_selector",
+    "../../../core/renderer/events:events",
+    "../../../core/renderer/pipeline",
+    "../../../core/renderer/signal:signal",
+    "../../../core/renderer/starlight:starlight",
+    "../../../core/renderer/ui_wrapper:ui_wrapper",
+    "../../../core/renderer/utils:renderer_utils",
+    "../../../core/resource",
+    "../../../core/runtime",
+    "../../../core/runtime/bindings/common/event:runtime_common",
+    "../../../core/runtime/bindings/jsi/event:js_runtime",
+    "../../../core/runtime/bindings/jsi/interceptor:network_interceptor",
+    "../../../core/runtime/bindings/lepus",
+    "../../../core/runtime/bindings/lepus/event:lepus_runtime",
+    "../../../core/runtime/vm/lepus:lepus",
+    "../../../core/runtime/vm/lepus:lepus_ng",
+    "../../../core/services/event_report:event_report",
+    "../../../core/services/feature_count:feature_count",
+    "../../../core/services/fluency:fluency",
+    "../../../core/services/long_task_timing:long_task_timing",
+    "../../../core/services/performance:performance",
+    "../../../core/services/performance:performance",
+    "../../../core/services/ssr:ssr",
+    "../../../core/services/timing_handler:timing_handler",
+    "../../../core/services/timing_handler:timing_handler_delegate",
+    "../../../core/shared_data:shared_data",
+    "../../../core/value_wrapper:value_wrapper",
+    "../../../third_party/rapidjson:rapidjson",
+  ]
+  if (enable_air) {
+    public_deps += [ "../../../core/renderer/dom/air:tasm_air" ]
+  }
+  if (enable_testbench_recorder) {
+    public_deps += [ "../../../core/services/recorder:recorder" ]
+  }
+  if (enable_testbench_replay) {
+    public_deps += [ "../../../core/services/replay" ]
+  }
+  if (enable_inspector) {
+    public_deps += [ "../../../core/inspector:inspector" ]
+  }
+  if (enable_memory_tracing) {
+    public_deps += [ "../../../core/base/debug:memory_tracer_src" ]
+  }
+  if (enable_lepusng_worklet) {
+    public_deps += [ "../../../core/renderer/worklet:worklet" ]
+  }
+
+  if (enable_napi_binding) {
+    public_deps +=
+        [ "../../../core/runtime/bindings/napi:napi_binding_quickjs" ]
+  }
+  if (enable_lynx_testing) {
+    public_deps += [
+      "../../../core/base:gtest_lynx_base_android",
+      "../../../core/renderer/utils:gtest_renderer_utils_android",
+      "//third_party/googletest:gtest_sources",
+      "//third_party/googletest_custom:gtest_custom",
+    ]
+  }
+}
+
+group("lynx_jni_files") {
+  exec_script("../../../tools/build_jni/generate_and_register_jni_files.py",
+              [
+                "-root",
+                rebase_path("../../../"),
+                "-path",
+                rebase_path("./src/main/jni/jni_configs.yml"),
+              ])
+  public_deps = [ "src/main/jni:build" ]
+}
+
+config("lynx_android_public_config") {
+  defines = [
+    "ANDROID",
+    "RAPIDJSON_HAS_STDSTRING=1",
+    "LYNX_DEV",
+    "LYNX_SIMPLIFY=0",
+    "NAPI_DISABLE_CPP_EXCEPTIONS",
+    "NAPI_DISABLE_CPP_RTTI",
+  ]
+  if (enable_inspector) {
+    defines += [ "EXPORT_SYMBOLS_FOR_DEVTOOL=1" ]
+  }
+  include_dirs = [
+    "//core",
+    "//core/build/gen",
+  ]
+  cflags = []
+  cflags += [
+    "-fno-short-enums",
+    "-fno-strict-aliasing",
+    "-fvisibility=hidden",
+    "-fvisibility-inlines-hidden",
+    "-Wno-unused-parameter",
+    "-Wno-unknown-warning-option",
+
+    # These features are commonly used and should not
+    # be treated as warnings.
+    "-Wno-vla-cxx-extension",
+    "-Wno-missing-field-initializers",
+
+    # for zlib
+    "-Wno-unused-function",
+  ]
+  cflags_c = []
+  cflags_cc = [
+    "-std=c++17",
+    "-fno-exceptions",
+    "-fno-rtti",
+    "-Wl,-ldl",
+    "-Wno-unused-command-line-argument",
+  ]
+
+  if (is_debug) {
+    cflags_cc += [ "-g" ]
+    cflags += [ "-O0" ]
+  } else {
+    defines += [ "NDEBUG" ]
+    cflags += [
+      "-faddrsig",
+      "-$compiler_optimization_level",
+    ]
+    if (enable_lto) {
+      cflags += [ "-flto" ]
+    }
+  }
+  if (enable_lite) {
+    defines += [ "USE_POW_TABLE=0" ]
+    cflags += [ "-fno-stack-protector" ]
+    if (enable_lite_production) {
+      defines += [ "LYNX_MIN_LOG_LEVEL=5" ]
+    }
+  } else {
+    defines += [ "USE_POW_TABLE=1" ]
+  }
+
+  if (jsengine_type == "jsc") {
+    defines += [ "JS_ENGINE_TYPE=1" ]
+    include_dirs += [ "//third_party/jsc" ]
+  } else if (jsengine_type == "quickjs") {
+    defines += [
+      "JS_ENGINE_TYPE=2",
+      "QUICKJS_VER_LYNX",
+    ]
+  }
+
+  if (enable_memory_tracing) {
+    defines += [ "MEMORY_TRACING" ]
+  }
+  if (enable_radon) {
+    defines += [ "_ENABLE_RADON_" ]
+  }
+
+  if (enable_frozen_mode) {
+    defines += [ "LYNX_ENABLE_FROZEN_MODE=true" ]
+  }
+
+  if (enable_napi_binding) {
+    include_dirs += [
+      "../../../third_party/napi/include",
+      "//third_party/v8/11.1.277/include",
+    ]
+  }
+
+  if (is_asan) {
+    cflags += [ "-fno-omit-frame-pointer" ]
+    cflags_cc += [
+      "-O1",
+      "-g",
+    ]
+  } else {
+    cflags_c += [
+      "-fomit-frame-pointer",
+      "-fno-sanitize=safe-stack",
+    ]
+    cflags_cc += [
+      "-fomit-frame-pointer",
+      "-fno-sanitize=safe-stack",
+    ]
+  }
+
+  cflags += custom_cflags
+  defines += custom_defines
+}
+
+# This config is only used in lynx_android target.
+config("lynx_android_private_config") {
+  ldflags = [
+    "-Wl,--exclude-libs,ALL,--gc-sections",
+    "-Wl,--build-id=sha1",
+    "-fuse-ld=lld",
+    "-Xlinker",
+    "-Map=output.map",
+  ]
+
+  lib_dirs = []
+  libs = [
+    "android",
+    "dl",
+    "jnigraphics",
+    "log",
+  ]
+  if (jsengine_type == "jsc") {
+    lib_dirs += [ "${jsc_lib_dir}" ]
+    libs += [ "jsc" ]
+  } else if (jsengine_type == "quickjs") {
+    lib_dirs += [ "${primjs_native_lib_dir}" ]
+    libs += [ "quick" ]
+  }
+  if (enable_napi_binding) {
+    lib_dirs += [ "${primjs_native_lib_dir}" ]
+    libs += [ "napi" ]
+  }
+
+  if (!is_debug) {
+    ldflags += [
+      "-O2",
+      "-Wl,--icf=all",
+    ]
+    if (enable_lto) {
+      ldflags += [ "-flto" ]
+    }
+  }
+  if (enable_lite) {
+    if (enable_lite_production) {
+      ldflags +=
+          [ "-Wl,--version-script=" + rebase_path("lynx_lite_export.map") ]
+    }
+  }
+  if (host_os == "linux") {
+    ldflags += [ "-stdlib=libc++" ]
+  }
+
+  ldflags += custom_ldflags
+}

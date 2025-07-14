@@ -1,0 +1,14 @@
+MemoryUsageEntry:
+  x-type: memory
+  x-name: memory
+  allOf:
+    - $ref: 'PerformanceEntry.yml#/PerformanceEntry'
+    - type: object
+      properties:
+        sizeKb:
+          type: number
+        detail:
+          type: map
+          keyType: string
+          valueType:
+            $ref: 'PerformanceEntry.yml#/MemoryUsageItem'

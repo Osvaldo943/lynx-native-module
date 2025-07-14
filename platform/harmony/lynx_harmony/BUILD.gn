@@ -1,0 +1,59 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+assert(is_harmony)
+
+import("../../../core/Lynx.gni")
+import("../../../core/base_targets.gni")
+import("../harmony.gni")
+
+source_set("native") {
+  public_deps = [ "src/main/cpp" ]
+}
+
+if (enable_harmony_shared) {
+  lynx_harmony_type = "shared_library"
+} else {
+  lynx_harmony_type = "source_set"
+}
+
+target(lynx_harmony_type, "lynx_harmony") {
+  sources = [ "entry.cc" ]
+  output_name = "lynx"
+
+  public_deps = [
+    ":native",
+    "../../../base/trace/native:trace",
+    "../../../core:lynx_native",
+    "../../../core/runtime/bindings/napi:napi_binding_jsvm",
+    "../../../core/runtime/bindings/napi:napi_binding_quickjs",
+    "../../../core/runtime/jsi/jsvm",
+    "../../../third_party/quickjs",
+    "../lynx_xelement",
+  ]
+  cflags = []
+  lib_dirs = [ primjs_native_lib_dir ]
+  libs = [
+    "napi",
+    "napi_v8",
+    "napi_adapter",
+    "quick",
+  ]
+
+  public_configs = [ ":harmony_public_config" ]
+  if (enable_testbench_replay) {
+    public_deps += [ "../../../core/services/replay" ]
+  }
+
+  if (enable_testbench_recorder) {
+    public_deps += [ "../../../core/services/recorder:recorder" ]
+  }
+}
+
+config("harmony_public_config") {
+  defines = [
+    "OS_HARMONY=1",
+    "OS_POSIX=1",
+  ]
+}

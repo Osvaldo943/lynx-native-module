@@ -1,0 +1,73 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../testing/test.gni")
+import("../../Lynx.gni")
+
+events_shared_sources = [
+  "closure_event_listener.cc",
+  "closure_event_listener.h",
+  "event_handler.cc",
+  "events.h",
+  "gesture.h",
+  "touch_event_handler.cc",
+  "touch_event_handler.h",
+]
+
+lynx_core_source_set("events") {
+  sources = events_shared_sources
+
+  public_deps = [
+    "../../../third_party/rapidjson",
+    "../../base",
+    "../../runtime/vm/lepus",
+    "../trace:renderer_trace",
+  ]
+
+  if (enable_lepusng_worklet) {
+    public_deps += [ "../worklet:worklet" ]
+  }
+}
+
+lynx_core_source_set("events_tasm") {
+  sources = [
+    "event_handler.cc",
+    "events.h",
+  ]
+
+  public_deps = [ "../../../third_party/rapidjson" ]
+
+  if (enable_lepusng_worklet) {
+    public_deps += [ "../worklet:worklet" ]
+  }
+}
+
+unittest_set("events_test_testset") {
+  testonly = true
+
+  sources = [
+    "closure_event_listener_test.cc",
+    "touch_event_handler_unittest.cc",
+  ]
+
+  public_deps = [
+    ":events",
+    "../:tasm",
+    "../../../third_party/quickjs",
+    "../../runtime/bindings/lepus",
+    "../../shell/testing:mock_tasm_delegate_testset",
+    "../dom:dom",
+    "../dom:dom_testset",
+    "../dom:renderer_dom",
+    "../starlight",
+  ]
+}
+
+unittest_exec("events_test_exec") {
+  testonly = true
+
+  sources = []
+
+  deps = [ ":events_test_testset" ]
+}

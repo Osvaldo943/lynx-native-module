@@ -1,0 +1,136 @@
+{% filter format_blink_cpp_source_code %}
+
+{% macro convert_argument(argument) %}
+  {% if argument.is_boolean_type %}
+  arg{{argument.index}}_{{argument.name}} = Napi::Boolean::New(env, arg{{argument.index}});
+  {% elif argument.is_numeric_type %}
+  arg{{argument.index}}_{{argument.name}} = Napi::Number::New(env, arg{{argument.index}});
+  {% elif argument.is_string_type %}
+  arg{{argument.index}}_{{argument.name}} = Napi::String::New(env, arg{{argument.index}});
+  {% elif argument.is_wrapper_type %}
+  arg{{argument.index}}_{{argument.name}} = WrapArgument{{argument.index}}(arg{{argument.index}}_ptr, env);
+  {% else %}
+  arg{{argument.index}}_{{argument.name}} = arg{{argument.index}};
+  {% endif %}
+{% endmacro %}
+
+{% include 'lynx_copyright_block.txt' %}
+#ifndef {{header_guard}}
+#define {{header_guard}}
+
+#include <utility>
+#include <memory>
+
+{% for filename in header_includes %}
+{% if filename[0] == '<' %}
+#include {{filename}}
+{% else %}
+#include "{{filename}}"
+{% endif %}
+{% endfor %}
+
+{% for filename in hardcoded_includes %}
+#include "{{filename}}"
+{% endfor %}
+
+namespace lynx {
+namespace {{component}} {
+{% if not holder_storage_namespace %}
+
+using binding::HolderStorage;
+using binding::InstanceGuard;
+
+{% endif %}
+extern const uint64_t k{{cpp_class}}ClassID;
+
+class {{cpp_class}} {
+ public:
+  {{cpp_class}}(Napi::Function callback);
+
+  {{cpp_class}}(const {{cpp_class}}& cb) = delete;
+
+  {% if enable_interval %}
+  ~{{cpp_class}}();
+  {% endif %}
+
+  {% for argument in arguments %}
+  {% if argument.is_wrapper_type %}
+  Napi::Value WrapArgument{{argument.index}}({{argument.idl_type}}* arg, Napi::Env env);
+  {% endif %}
+  {% endfor %}
+
+  {% if has_wrapper_arguments %}
+  // The reason why this function is templatized is to allow for both raw
+  // pointers and std::unique_ptr's. In either case ownership transfer is
+  // assumed, i.e. C++ side MUST NOT destroy the object afterwards.
+  {% for argument in arguments %}
+  {% if argument.is_wrapper_type %}
+  // * arg{{argument.index}} may be of {{argument.idl_type}}* or std::unique_ptr<{{argument.idl_type}}>.
+  {% endif %}
+  {% endfor %}
+  template <typename T{{ arguments | selectattr('is_wrapper_type', 'equalto', True) | map(attribute = 'index') | join(', typename T') }}>
+  {% endif %}
+  void Invoke({{ arguments | map(attribute = 'declaration_name') | join(', ')}}) {
+    bool valid;
+    Napi::Env env = Env(&valid);
+    if (!valid) {
+      return;
+    }
+
+    Napi::ContextScope cs(env);
+    Napi::HandleScope hs(env);
+
+    {{holder_storage_namespace}}HolderStorage *storage = reinterpret_cast<{{holder_storage_namespace}}HolderStorage*>(env.GetInstanceData(k{{cpp_class}}ClassID));
+    DCHECK(storage);
+
+    {% if enable_interval %}
+    const auto& cb = storage->PeekHolder(reinterpret_cast<uintptr_t>(this));
+    {% else %}
+    auto cb = storage->PopHolder(reinterpret_cast<uintptr_t>(this));
+    {% endif %}
+
+    {% for argument in arguments %}
+    Napi::Value arg{{argument.index}}_{{argument.name}};
+    {% if argument.is_wrapper_type %}
+    {{argument.idl_type}}* arg{{argument.index}}_ptr = binding::ToRawPtr(std::move(arg{{argument.index}}));
+    {{ convert_argument(argument) | trim | indent(2) }}
+    {% elif argument.is_nullable or argument.is_optional %}
+    if (arg{{argument.index}}_optional.has_value()) {
+      auto&& arg{{argument.index}} = *arg{{argument.index}}_optional;
+      {{ convert_argument(argument) | trim | indent(4) }}
+    } else {
+      arg{{argument.index}}_{{argument.name}} = env.Undefined();
+    }
+    {% else %}
+    {{ convert_argument(argument) | trim | indent(2) }}
+    {% endif %}
+
+    {% endfor %}
+
+    {% if enable_interval %}
+    binding::CallbackHelper::Invoke(cb, result_, exception_handler_, { {{ arguments | map(attribute = 'call_name') | join(', ')}} });
+    {% else %}
+    // The JS callback object is stolen after the call.
+    binding::CallbackHelper::Invoke(std::move(cb), result_, exception_handler_, { {{ arguments | map(attribute = 'call_name') | join(', ')}} });
+    {% endif %}
+  }
+
+  Napi::Value GetResult() { return result_; }
+  Napi::Env Env(bool *valid);
+
+  void SetExceptionHandler(std::function<void(Napi::Env)> handler) {
+    exception_handler_ = std::move(handler);
+  }
+
+ private:
+  std::weak_ptr<{{holder_storage_namespace}}InstanceGuard> storage_guard_;
+  Napi::Value result_;
+  std::function<void(Napi::Env)> exception_handler_;
+};
+
+}  // namespace {{component}}
+}  // namespace lynx
+
+#endif  // {{header_guard}}
+
+{% endfilter %}{# format_blink_cpp_source_code #}

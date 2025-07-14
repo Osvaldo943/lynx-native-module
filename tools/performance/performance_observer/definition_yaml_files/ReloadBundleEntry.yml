@@ -1,0 +1,23 @@
+ReloadBundleEntry:
+  x-type: 'pipeline'
+  x-name:
+    - 'reloadBundleFromNative'
+    - 'reloadBundleFromBts'
+  allOf:
+    - $ref: 'PipelineEntry.yml#/PipelineEntry'
+    - type: object
+      properties:
+        reloadBundleStart:
+          type: number
+        reloadBundleEnd:
+          type: number
+        reloadBackgroundStart:
+          type: number
+        reloadBackgroundEnd:
+          type: number
+        ffiStart:
+          type: number
+          required: false
+        ffiEnd:
+          type: number
+          required: false

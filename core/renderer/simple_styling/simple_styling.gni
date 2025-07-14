@@ -1,0 +1,12 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+import("../../../config.gni")
+lynx_simple_styling_sources = [
+  "simple_style_node.h",
+  "style_object.cc",
+  "style_object.h",
+  "style_object_decoder.h",
+]
+lynx_simple_styling_sources_path =
+    get_path_info(lynx_simple_styling_sources, "abspath")

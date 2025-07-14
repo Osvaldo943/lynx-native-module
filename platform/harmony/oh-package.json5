@@ -1,0 +1,17 @@
+{
+  "name": "lynx",
+  "license": "Apache-2.0",
+  "devDependencies": {},
+  "repository": "https://github.com/lynx-family/lynx",
+  "author": "lynx",
+  "description": "A Powerful Cross-Platform Framework that builds native Apps with Web technologies",
+  "main": "",
+  "version": "0.0.1",
+  "dependencies": {
+    "@lynx/primjs": "0.0.1-alpha.5"
+  },
+  "dynamicDependencies": {},
+  "overrides": {
+  },
+  "modelVersion": "5.0.0"
+}

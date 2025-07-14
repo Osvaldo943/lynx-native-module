@@ -1,0 +1,35 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../testing/test.gni")
+import("../../Lynx.gni")
+import("../css/build.gni")
+import("simple_styling.gni")
+
+lynx_core_source_set("simple_styling") {
+  public_deps = [ "../css" ]
+
+  sources = lynx_simple_styling_sources_path
+}
+
+group("simple_styling_tests") {
+  public_deps = [ ":style_object_unittest_exec" ]
+  testonly = true
+  deps = [ ":style_object_testset" ]
+}
+
+unittest_set("style_object_testset") {
+  testonly = true
+  sources = [ "style_object_unittest.cc" ]
+  public_deps = [ ":simple_styling" ]
+  deps = [ "../css" ]
+}
+
+unittest_exec("style_object_unittest_exec") {
+  sources = []
+  deps = [
+    ":style_object_testset",
+    "../dom:dom",
+  ]
+}

@@ -1,0 +1,114 @@
+{% macro template_typename(arguments, number_of_arguments) %}
+{% if number_of_arguments > 0 %}typename T0{% for argument in arguments[1:number_of_arguments] %}, typename T{{argument.index}}{% endfor %}{% endif %}
+{% endmacro %}
+{% filter format_blink_cpp_source_code %}
+
+{% include 'lynx_copyright_block.txt' %}
+#include "{{this_include_header_path}}"
+
+{% for filename in cpp_includes %}
+#include "{{filename}}"
+{% endfor %}
+
+#ifdef USE_PRIMJS_NAPI
+#include "third_party/napi/include/primjs_napi_defines.h"
+#endif
+
+using Napi::Array;
+using Napi::CallbackInfo;
+using Napi::Error;
+using Napi::Function;
+using Napi::FunctionReference;
+using Napi::Number;
+using Napi::Object;
+using Napi::ObjectWrap;
+using Napi::String;
+using Napi::TypeError;
+using Napi::Value;
+
+using Napi::ArrayBuffer;
+using Napi::Int8Array;
+using Napi::Uint8Array;
+using Napi::Int16Array;
+using Napi::Uint16Array;
+using Napi::Int32Array;
+using Napi::Uint32Array;
+using Napi::Float32Array;
+using Napi::Float64Array;
+using Napi::DataView;
+
+namespace lynx {
+namespace {{component}} {
+const uint64_t k{{cpp_class}}ClassID = reinterpret_cast<uint64_t>(&k{{cpp_class}}ClassID);
+
+{{cpp_class}}::{{cpp_class}}(Napi::Function callback) {
+  Napi::Env env = callback.Env();
+  {{holder_storage_namespace}}HolderStorage *storage = reinterpret_cast<{{holder_storage_namespace}}HolderStorage*>(env.GetInstanceData(k{{cpp_class}}ClassID));
+  if (storage == nullptr) {
+    storage = new {{holder_storage_namespace}}HolderStorage();
+    env.SetInstanceData(k{{cpp_class}}ClassID, storage, [](napi_env env, void* finalize_data,
+                                                                   void* finalize_hint) { delete reinterpret_cast<{{holder_storage_namespace}}HolderStorage*>(finalize_data); }, nullptr);
+  }
+
+  storage->PushHolder(reinterpret_cast<uintptr_t>(this), Napi::Persistent(callback));
+
+  storage_guard_ = storage->instance_guard();
+}
+
+{% if enable_interval %}
+{{cpp_class}}::~{{cpp_class}}() {
+  bool valid;
+  Napi::Env env = Env(&valid);
+  if (!valid) {
+    return;
+  }
+
+  {{holder_storage_namespace}}HolderStorage *storage = reinterpret_cast<{{holder_storage_namespace}}HolderStorage*>(env.GetInstanceData(k{{cpp_class}}ClassID));
+  if (storage == nullptr) {
+    return;
+  }
+  storage->PopHolder(reinterpret_cast<uintptr_t>(this));
+}
+{% endif %}
+
+Napi::Env {{cpp_class}}::Env(bool *valid) {
+  if (valid != nullptr) {
+    *valid = false;
+  }
+
+  auto strong_guard = storage_guard_.lock();
+  if (!strong_guard) {
+    // if valid is nullptr, it must be valid.
+    DCHECK(valid);
+    return Napi::Env(nullptr);
+  }
+
+  auto storage = strong_guard->Get();
+  auto &cb = storage->PeekHolder(reinterpret_cast<uintptr_t>(this));
+  if (cb.IsEmpty()) {
+    // if valid is nullptr, it must be valid.
+    DCHECK(valid);
+    return Napi::Env(nullptr);
+  }
+
+  if (valid != nullptr) {
+    *valid = true;
+  }
+  return cb.Env();
+}
+
+{% for argument in arguments %}
+{% if argument.is_wrapper_type %}
+Napi::Value {{cpp_class}}::WrapArgument{{argument.index}}({{argument.idl_type}}* arg, Napi::Env env) {
+  if (!arg) {
+    return env.Undefined();
+  }
+  return arg->IsNapiWrapped() ? arg->NapiObject() : Napi{{argument.idl_type}}::Wrap(std::unique_ptr<{{argument.idl_type}}>(arg), env);
+}
+{% endif %}
+{% endfor %}
+
+}  // namespace {{component}}
+}  // namespace lynx
+
+{% endfilter %}{# format_blink_cpp_source_code #}

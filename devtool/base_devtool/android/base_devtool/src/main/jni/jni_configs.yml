@@ -1,0 +1,19 @@
+# jni register file configs.
+jni_register_configs:
+  output_path: devtool/base_devtool/android/base_devtool/src/main/jni/gen/lynx_base_devtool_so_load.cc
+  custom_headers:
+    - base/include/platform/android/jni_utils.h
+  namespaces:
+    - lynx_base_devtool
+# gn file configs.
+gn_configs:
+  output_path: devtool/base_devtool/android/base_devtool/src/main/jni/BUILD.gn
+  template_name: base_devtool_source_set
+  custom_headers:
+    - devtool/base_devtool/native/base_devtool.gni
+# jni files configs.
+jni_class_configs:
+  output_dir: devtool/base_devtool/android/base_devtool/src/main/jni/gen
+  jni_classes:
+    - java: devtool/base_devtool/android/base_devtool/src/main/java/com/lynx/basedevtool/DevToolSlot.java
+    - java: devtool/base_devtool/android/base_devtool/src/main/java/com/lynx/basedevtool/DevToolGlobalSlot.java

@@ -1,0 +1,11 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+lynx_renderer_utils_extend_sources =
+    rebase_path([
+                  "../core/renderer/utils/base/tasm_utils.cc",
+                  "../core/renderer/utils/base/tasm_utils.h",
+                ])
+
+lynx_tasm_extend_shared_sources = []

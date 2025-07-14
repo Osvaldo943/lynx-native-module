@@ -1,0 +1,76 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../config.gni")
+
+lynx_podspec = get_path_info([
+                               ":Air",
+                               ":Framework",
+                               ":JSRuntime",
+                               "../../common/lazy_load:LazyLoad",
+                               ":LepusNG",
+                               ":NapiBinding",
+                               ":Native",
+                               ":ReleaseResource",
+                               ":Replay",
+                               ":Trace",
+                               ":UnitTests",
+                               ":Worklet",
+                               ":Inspector",
+                             ],
+                             "abspath")
+
+lynx_podspec_metadata = {
+  # These variables are reserved to be consistent with the original podspec.
+  global_variables = [
+    "\$enable_recorder = Integer(ENV[\"LYNX_ENABLE_RECORDER\"] || 0)",
+    "\$enable_frozen_mode = Integer(ENV[\"LYNX_ENABLE_FROZEN\"] || 0)",
+    "\$enable_e2e_test = Integer(ENV[\"LYNX_ENABLE_E2E_TEST\"] || 0)",
+  ]
+  if (enable_trace == "perfetto") {
+    global_variables += [ "\$enable_trace = 1" ]
+  } else {
+    global_variables += [ "\$enable_trace = 0" ]
+  }
+}
+
+lynx_podspec_deps = rebase_path([
+                                  "../../common/lynx:Lynx_subspec",
+                                  "../../common/lynx/public:Public",
+                                  ":lynx",
+                                  "public:Public",
+                                ])
+
+framework_podspec_deps = rebase_path([
+                                       "../../common/lazy_load:LazyLoad",
+                                       "../../common/lynx:Lynx_subspec",
+                                       "../../common/lynx/public:Public",
+                                       ":Inspector",
+                                       ":JSRuntime",
+                                       ":LepusNG",
+                                       ":NapiBinding",
+                                       ":Native",
+                                       ":Trace",
+                                       ":Worklet",
+                                       ":lynx",
+                                       "public:Public",
+                                     ])
+
+native_podspec_deps = rebase_path([
+                                    ":amoeba",
+                                    ":animation",
+                                    ":animation_utils",
+                                    ":base",
+                                    ":basic_animation",
+                                    ":fml",
+                                    ":lepus",
+                                    ":lynx_basic_animator",
+                                    ":parser",
+                                    ":resource",
+                                    ":starlight",
+                                    ":tasm",
+                                    ":template_bundle",
+                                    ":third_party",
+                                    ":transforms",
+                                  ])

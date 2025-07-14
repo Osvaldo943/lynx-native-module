@@ -1,0 +1,11 @@
+{
+  "name": "opacity",
+  "id": 23,
+  "type": "number",
+  "default_value": "1",
+  "version": "1.0",
+  "author": "linxiaosong",
+  "consumption_status": "skip",
+  "desc": "",
+  "is_shorthand": false
+}

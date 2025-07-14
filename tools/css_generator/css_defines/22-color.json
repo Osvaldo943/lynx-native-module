@@ -1,0 +1,11 @@
+{
+  "name": "color",
+  "id": 22,
+  "type": "color",
+  "default_value": "black",
+  "version": "1.0",
+  "author": "yaoxiaopeng",
+  "consumption_status": "skip",
+  "desc": "",
+  "is_shorthand": false
+}

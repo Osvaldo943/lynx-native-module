@@ -1,0 +1,46 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../Lynx.gni")
+
+timing_handler_shared_sources = [
+  "timing.cc",
+  "timing.h",
+  "timing_constants.h",
+  "timing_constants_deprecated.h",
+  "timing_handler.cc",
+  "timing_handler.h",
+  "timing_handler_delegate.h",
+  "timing_handler_ng.cc",
+  "timing_handler_ng.h",
+  "timing_info.cc",
+  "timing_info.h",
+  "timing_info_ng.cc",
+  "timing_info_ng.h",
+  "timing_map.cc",
+  "timing_map.h",
+  "timing_utils.cc",
+  "timing_utils.h",
+]
+
+timing_handler_delegate_shared_sources = [
+  "timing_mediator.cc",
+  "timing_mediator.h",
+]
+
+lynx_core_source_set("timing_handler") {
+  sources = timing_handler_shared_sources
+  deps = [
+    "../../../base/src:base_log_headers",
+    "../trace:service_trace",
+  ]
+}
+
+lynx_core_source_set("timing_handler_delegate") {
+  sources = timing_handler_delegate_shared_sources
+  deps = [
+    ":timing_handler",
+    "../../../base/src:base_log_headers",
+  ]
+}

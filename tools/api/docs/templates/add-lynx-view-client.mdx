@@ -1,0 +1,102 @@
+# {{ api.name }}
+
+{{ api.brief_desc }}
+
+## Syntax
+{% if api.android_member %}
+
+### Android
+
+```java
+{{ api.android_member.prototype }}
+```
+{% if api.android_member.params %}
+
+#### Parameters
+
+{%  for param in api.android_member.params %}
+- `{{ param.name }}`: {{ param.brief_desc }}
+{% endfor %}
+{% endif %}
+{% if api.android_member.returns.brief_desc %}
+
+#### Return
+
+- {{ api.android_member.returns.brief_desc }}
+{% endif %}
+{% if api.android_member.note %}
+
+:::note
+
+{% for note in api.android_member.note %}
+- {{ note }}
+{% endfor %}
+
+:::
+{% endif %}
+{% endif %}
+{% if api.ios_member %}
+
+### iOS
+
+```objc
+{{ api.ios_member.prototype }}
+```
+{% if api.ios_member.params %}
+
+#### Parameters
+
+{%  for param in api.ios_member.params %}
+- `{{ param.name }}`: {{ param.brief_desc }}
+{% endfor %}
+{% endif %}
+{% if api.ios_member.returns.brief_desc %}
+
+#### Return
+- {{ api.ios_member.returns.brief_desc }}
+{% endif %}
+{% if api.ios_member.note %}
+
+:::note
+
+{% for note in api.ios_member.note %}
+- {{ note }}
+{% endfor %}
+
+:::
+{% endif %}
+{% endif %}
+
+### Harmony
+
+#### Field
+
+LynxView has clients member:
+
+- `clients: LynxViewClient[]`: The structure implemented by the client and registered to the `LynxView` instance is used to obtain the callbacks of each process in the `LynxView` lifecycle.
+
+On the HarmonyOS platfrom, you need to pass your implemented LynxViewClient as a parameter during the initialization of LynxView:
+
+```typescript
+@Entry
+@Component
+struct Index {
+  private clients: EntryLynxClient[] = [new EntryLynxClient()];
+
+  build() {
+    Column() {
+      LynxView({
+        clients: this.clients,
+      }).width('100%').height('100%');
+    }
+    .size({ width: '100%', height: '100%' })
+  }
+}
+```
+
+
+## Compatibility
+
+import { LegacyCompatTable } from '@lynx';
+
+<LegacyCompatTable metadata="lynx-native-api/{{ api.parent_name }}/{{ api.kebab_name }}" />

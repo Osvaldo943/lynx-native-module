@@ -1,0 +1,23 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+path:
+  doxygen: buildtools/doxygen/doxygen
+  instruction_doc: https://github.com/lynx-family/lynx/blob/develop/CONTRIBUTING.md#static-code-analysis-tasks
+  node: buildtools/node/bin/node
+  esbuild: buildtools/esbuild/bin/esbuild
+  llvm: buildtools/llvm
+android:
+  metadata_path:
+    - platform/android/lynx_android/src/main
+  doc_path:
+    - README.md
+    - platform/android/lynx_android/src/main/java/com/lynx/tasm/LynxView.java
+ios:
+  metadata_path:
+    - platform/darwin/ios/lynx
+    - platform/darwin/common/lynx
+  doc_path:
+    - README.md
+    - platform/darwin/ios/lynx/public/LynxView.h

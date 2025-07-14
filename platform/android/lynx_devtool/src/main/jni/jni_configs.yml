@@ -1,0 +1,35 @@
+# jni register file configs.
+jni_register_configs:
+  output_path: platform/android/lynx_devtool/src/main/jni/gen/lynx_devtool_so_load.cc
+  custom_headers:
+    - core/base/android/android_jni.h
+  namespaces:
+    - lynx_devtool
+  special_cases:
+    - header: base/include/fml/platform/android/message_loop_android.h
+      method: lynx::fml::MessageLoopAndroid::Register(env);
+# gn file configs.
+gn_configs:
+  output_path: platform/android/lynx_devtool/src/main/jni/BUILD.gn
+  template_name: devtool_source_set
+  custom_headers:
+    - devtool/lynx_devtool/devtool.gni
+# jni files configs.
+jni_class_configs:
+  output_dir: platform/android/lynx_devtool/src/main/jni/gen
+  jni_classes:
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/LynxInspectorOwner.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/LynxDevToolNGDelegate.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/DevToolMessageHandlerDelegate.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/CDPResultCallbackWrapper.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/DevToolPlatformAndroidDelegate.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/GlobalDevToolPlatformAndroidDelegate.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/RecorderController.java
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/tracing/FrameTraceService.java
+      macro: ENABLE_TRACE_PERFETTO || ENABLE_TRACE_SYSTRACE
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/tracing/FPSTrace.java
+      macro: ENABLE_TRACE_PERFETTO || ENABLE_TRACE_SYSTRACE
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/tracing/FrameViewTrace.java
+      macro: ENABLE_TRACE_PERFETTO || ENABLE_TRACE_SYSTRACE
+    - java: platform/android/lynx_devtool/src/main/java/com/lynx/devtool/tracing/InstanceTrace.java
+      macro: ENABLE_TRACE_PERFETTO || ENABLE_TRACE_SYSTRACE

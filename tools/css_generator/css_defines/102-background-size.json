@@ -1,0 +1,11 @@
+{
+  "name": "background-size",
+  "id": 102,
+  "type": "complex",
+  "default_value": "",
+  "version": "1.0",
+  "author": "tangruiwen",
+  "consumption_status": "skip",
+  "desc": "",
+  "is_shorthand": false
+}

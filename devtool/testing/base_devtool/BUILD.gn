@@ -1,0 +1,28 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+import("../../../config.gni")
+import("../../../testing/test.gni")
+
+unittest_set("devtool_base_devtool_testset") {
+  testonly = true
+  sources = [
+    "../../base_devtool/native/js_inspect/inspector_client_delegate_base_impl_unittest.cc",
+    "../../base_devtool/native/js_inspect/script_manager_ng_unittest.cc",
+    "base_devtool_unittest.cc",
+  ]
+
+  deps = [
+    "../../../base/src:base",
+    "../../base_devtool/native:base_devtool",
+  ]
+
+  include_dirs = [
+    "//third_party/googletest/googletest/include",
+    "../../../third_party/jsoncpp/include/",
+  ]
+  public_configs = [
+    "../../../core:lynx_public_config",
+    "../../lynx_devtool:devtool_common_config",
+  ]
+}

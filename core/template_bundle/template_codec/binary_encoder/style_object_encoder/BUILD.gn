@@ -1,0 +1,39 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../../testing/test.gni")
+import("../../../../Lynx.gni")
+import("../../../../renderer/simple_styling/simple_styling.gni")
+import("../../../../runtime/vm/lepus/build.gni")
+
+lynx_core_source_set("style_object_encoder") {
+  sources = [
+    "style_object_parser.cc",
+    "style_object_parser.h",
+  ]
+
+  # After clarifying all dependencies, then add new deps.
+  deps = [
+    "../../../../../third_party/rapidjson:rapidjson",
+    "../css_encoder:css_encoder",
+  ]
+}
+
+unittest_set("style_object_encoder_testset") {
+  public_deps = [
+    ":style_object_encoder",
+    "../../../../renderer:tasm",
+    "../../../../renderer/dom:dom",
+    "../../../../renderer/dom:renderer_dom",
+    "../../../../runtime/bindings/lepus",
+  ]
+
+  sources = [ "style_object_parser_unittest.cc" ]
+  deps = [ "../../../../../third_party/rapidjson:rapidjson" ]
+}
+
+unittest_exec("style_object_encoder_testset_exec") {
+  testonly = true
+  deps = [ ":style_object_encoder_testset" ]
+}

@@ -1,0 +1,86 @@
+# Copyright 2024 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../../platform/android/Android.gni")
+import("../../../../tools/gn_tools/cmake_target_template.gni")
+
+cmake_target("base_devtool") {
+  cmake_version = "3.4.1"
+  target_type = "shared_library"
+  output_name = "basedevtool"
+  deps = [
+    ":base_devtool_jni_files",
+    "../../native:base_devtool_lib",
+  ]
+  libs = [
+    "android",
+    "dl",
+    "log",
+  ]
+
+  configs = [
+    ":devtool_common_defines",
+    ":devtool_flag_config",
+    ":devtool_ldflag_config",
+    "../../../../platform/android:16kb_page",
+  ]
+}
+
+group("base_devtool_jni_files") {
+  exec_script("../../../../tools/build_jni/generate_and_register_jni_files.py",
+              [
+                "-root",
+                rebase_path("../../../../"),
+                "-path",
+                rebase_path("./src/main/jni/jni_configs.yml"),
+                "--use-base-jni-header",
+              ])
+  public_deps = [ "src/main/jni:build" ]
+}
+
+config("devtool_common_defines") {
+  defines = [ "RAPIDJSON_HAS_STDSTRING=1" ]
+  if (!is_debug) {
+    defines += [
+      "ENABLE_LOGGING=0",
+      "NDEBUG",
+    ]
+  } else {
+    defines += [
+      "DEBUG_MEMORY",
+      "ENABLE_LOGGING=1",
+    ]
+  }
+}
+
+config("devtool_flag_config") {
+  cflags = [
+    "-fvisibility=hidden",
+    "-fvisibility-inlines-hidden",
+    "-fno-short-enums",
+    "-fno-stack-protector",
+    "-fno-strict-aliasing",
+    "-Wno-unused-parameter",
+    "-Oz",
+  ]
+  cflags_c = []
+  cflags_cc = [
+    "-fno-rtti",
+    "-std=c++17",
+    "-Wl,-ldl",
+    "-Wno-unused-command-line-argument",
+  ]
+  configs = []
+  if (is_debug) {
+    cflags_cc += [ "-g" ]
+  }
+}
+
+config("devtool_ldflag_config") {
+  ldflags = [ "-Wl,--exclude-libs,ALL" ]
+  ldflags += [
+    "-Xlinker",
+    "-Map=output.map",
+  ]
+}

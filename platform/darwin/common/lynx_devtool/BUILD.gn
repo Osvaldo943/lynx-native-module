@@ -1,0 +1,83 @@
+# Copyright 2022 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+import("//${lynx_dir}/build_overrides/darwin.gni")
+import("../../../../devtool/lynx_devtool/devtool.gni")
+import("../../../../tools/gn_tools/podspec_target_template.gni")
+
+config("public_config") {
+  include_dirs = [
+    ".",
+    "Helper",
+    "Tracing",
+    "../../../../base/trace/darwin",
+  ]
+  cflags = []
+  if (is_ios) {
+    include_dirs += [
+      "//platform/darwin/ios/Headers/Private",
+      "//platform/darwin/ios/lynxDevtool",
+      "//platform/darwin/ios/lynxDevtool/Helper",
+      "//platform/darwin/ios/lynx/Base",
+      "//platform/darwin/ios/public/base",
+    ]
+    cflags += [
+      "-include",
+      rebase_path("LynxDevTool-prefix-ios.pch", root_build_dir),
+    ]
+  }
+}
+
+# Please put public headers on this _public_headers list.
+# These public headers will be added to the public_header_files variable in the podspec
+devtool_public_headers = [
+  "Helper/LynxBaseDeviceInfo.h",
+  "LynxDebugBridge.h",
+  "LynxDevtoolEnv.h",
+  "LynxInspectorConsoleDelegate.h",
+  "Module/LynxDevToolSetModule.h",
+  "Module/LynxTrailModule.h",
+  "Module/LynxWebSocketModule.h",
+]
+
+subspec_target("devtool") {
+  sources = [
+    "Helper/LynxScreenCastHelper.h",
+    "Helper/LynxScreenCastHelper.mm",
+    "LynxDebugBridge.mm",
+    "LynxDevMenu.h",
+    "LynxDevMenu.mm",
+    "LynxDevToolFrameCapturer.h",
+    "LynxDevToolFrameCapturer.mm",
+    "LynxDevtoolEnv.mm",
+    "LynxInspectorOwner+Internal.h",
+    "Memory/LynxMemoryController.h",
+    "Memory/LynxMemoryController.mm",
+    "Module/LynxDevToolSetModule.mm",
+    "Module/LynxTrailModule.mm",
+    "Module/LynxWebSocketModule.mm",
+    "Tracing/LynxFPSTrace.h",
+    "Tracing/LynxFPSTrace.mm",
+    "Tracing/LynxFrameTraceService.h",
+    "Tracing/LynxFrameTraceService.mm",
+    "Tracing/LynxFrameViewTrace.h",
+    "Tracing/LynxFrameViewTrace.mm",
+    "Tracing/LynxInstanceTrace.h",
+    "Tracing/LynxInstanceTrace.mm",
+  ]
+  sources += devtool_public_headers
+  public_header_files = devtool_public_headers
+}
+devtool_source_set("logbox") {
+  include_dirs = [
+    ".",
+    "LogBox",
+  ]
+
+  sources = [
+    "LogBox/LynxLogBoxWrapper.h",
+    "LogBox/LynxLogBoxWrapper.mm",
+  ]
+
+  public_configs = devtool_darwin_config
+}

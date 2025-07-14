@@ -1,0 +1,152 @@
+# Copyright 2023 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+
+import("../../../testing/test.gni")
+import("../../Lynx.gni")
+import("build.gni")
+
+# This exists to break some cycle dependencies with :dom source_set
+lynx_core_source_set("dom_headers") {
+  check_includes = false
+  sources = [
+    "element.h",
+    "element_manager.h",
+    "element_manager_delegate.h",
+    "element_property.h",
+    "snapshot_element.h",
+  ]
+}
+
+lynx_core_source_set("dom") {
+  sources = lynx_dom_core_sources_path + lynx_element_shared_sources_path
+  public_deps = [
+    ":dom_headers",
+    ":renderer_dom",
+    "../:tasm",
+    "../../../third_party/rapidjson",
+    "../../runtime/bindings/lepus",
+    "../../services/long_task_timing",
+    "../../value_wrapper",
+    "../css:css_dom",
+    "../simple_styling",
+    "../trace:renderer_trace",
+    "../ui_wrapper",
+    "../utils:renderer_dom_utils",
+    "../utils:renderer_utils",
+    "fiber",
+    "//${lynx_dir}/core/services/ssr",
+  ]
+
+  if (!is_oliver_ssr) {
+    public_deps += [
+      "../ui_component/list:react_component_list",
+      "selector:element_selector",
+    ]
+  }
+
+  if (is_android) {
+    public_deps += [ "../tasm/react/android/mapbuffer:map_buffer" ]
+  }
+
+  if (enable_air) {
+    public_deps += [ "air:tasm_air" ]
+  }
+  if (enable_unittests) {
+    public_deps += [ "../css:css_decoder" ]
+  }
+  if (enable_lepusng_worklet) {
+    public_deps += [ "../worklet:worklet" ]
+  }
+}
+
+lynx_core_source_set("renderer_dom") {
+  include_dirs = [ "../../../third_party" ]
+
+  sources = lynx_renderer_dom_sources_path + lynx_component_attr_sources_path
+
+  public_deps = [
+    "../../base",
+    "../../runtime/vm/lepus",
+    "../css",
+    "../events",
+    "../simple_styling",
+    "../utils:renderer_dom_utils",
+    "../utils:renderer_utils",
+  ]
+}
+
+group("dom_tests") {
+  testonly = true
+  deps = [
+    ":dom_trace_unittest_exec",
+    ":dom_unittest_exec",
+  ]
+  public_deps = [
+    ":dom_testset",
+    ":dom_trace_testset",
+  ]
+}
+
+unittest_set("dom_testset") {
+  public_configs = [ "../../:lynx_public_config" ]
+  sources = [
+    "../css/layout_node_unittest.cc",
+    "../css/select_element_token_unittest.cc",
+    "../utils/base/tasm_worker_task_runner_unittest.cc",
+    "air/air_element/air_block_element_unittest.cc",
+    "air/air_element/air_element_container_unittest.cc",
+    "air/air_element/air_element_unittest.cc",
+    "air/air_touch_event_handler_unittest.cc",
+    "attribute_holder_unittest.cc",
+    "element_container_unittest.cc",
+    "element_context_delegate_unittest.cc",
+    "element_manager_unittest.cc",
+    "element_unittest.cc",
+    "element_vsync_proxy_unittest.cc",
+    "fiber/block_element_unittest.cc",
+    "fiber/fiber_element_unittest.cc",
+    "fiber/fiber_node_info_unittest.cc",
+    "fiber/list_item_scheduler_adapter_unittest.cc",
+    "fiber/pseudo_element_unittest.cc",
+    "fiber/raw_text_element_unittest.cc",
+    "fiber/scroll_element_unittest.cc",
+    "fiber/text_element_unittest.cc",
+    "testing/fiber_element_test.cc",
+    "testing/fiber_element_test.h",
+    "testing/fiber_mock_painting_context.cc",
+    "testing/fiber_mock_painting_context.h",
+    "testing/fiber_new_fixed_test.cc",
+    "vdom/radon/radon_element_unittest.cc",
+    "vdom/radon/radon_node_unittest.cc",
+  ]
+  deps = [
+    "../../runtime/vm/lepus/tasks:tasks_testset",
+    "../../shell/testing:mock_tasm_delegate_testset",
+    "../../template_bundle/template_codec/binary_encoder/css_encoder:css_encoder",
+  ]
+  public_deps = [ ":dom" ]
+
+  if (enable_air) {
+    public_deps += [ "air:air_runtime_mockset_exec" ]
+  }
+}
+
+unittest_set("dom_trace_testset") {
+  public_configs = [ "../../:lynx_public_config" ]
+  sources = [ "snapshot_element_unittest.cc" ]
+  deps = [ "../../shell/testing:mock_tasm_delegate_testset" ]
+  public_deps = [ ":dom" ]
+
+  defines = [ "ENABLE_TRACE_PERFETTO=1" ]
+}
+
+unittest_exec("dom_unittest_exec") {
+  sources = []
+  deps = [ ":dom_testset" ]
+}
+
+unittest_exec("dom_trace_unittest_exec") {
+  sources = []
+  deps = [ ":dom_trace_testset" ]
+}
